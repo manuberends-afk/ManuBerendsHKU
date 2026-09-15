@@ -1,1 +1,1 @@
-HOI! net begonnen hiero, kei vet dit. Check jullie als ik iets vets bereikt heb. !'.'!  
+ManuBerends_CSD2a_GenStrat.pages is waar alle nuttige info voor jullie in staat
