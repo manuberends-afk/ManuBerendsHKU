@@ -23,6 +23,7 @@ while running:
     screen.fill("purple")
 
     pygame.draw.circle(screen, "red", player_pos, 40)
+    
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
