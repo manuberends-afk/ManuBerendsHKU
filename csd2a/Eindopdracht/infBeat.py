@@ -1,3 +1,18 @@
+# timeSignature = 4
+# amountOfInstruments = 2
+listOfSounds = []
+
+# for i in range(amountOfInstruments):
+#     event = {
+#         "Sound": input("What is instrument? :  "),
+#         "Measures": input("How many measures will we define? "),
+#         "noteValue": input("How long is one note? ")
+#     }
+#     listOfSounds.append(event)
+
+# print(listOfSounds)
+
+
 import random
 from midiutil import MIDIFile
 
@@ -6,7 +21,7 @@ velocity=80
 track = 0
 channel = 9 # corresponds to channel 10 drums
 bpm = 120
-note_time = 60 / bpm * 2
+one_note = 60 / bpm * 2
 note_value = 1
 # timeStamp = 0
 
@@ -58,10 +73,16 @@ def defineInstrument():
     addInstrument = tryForInstrumentName()
     return addInstrument
 
+def amountOfMeasures():
+    print("")
+    print("For this instrument, how many measures do you want to define? press \"ENTER\" for default -> 1: ")
+    measureAmount = tryForInt(1)
+    return int(measureAmount)
+
 # Define the amount of steps in one measure
-def amountOfSteps():
+def amountOfSteps(measures):
     print("Enter the number of steps per measure: enter for default 4")
-    numberOfSteps = tryForInt(4)
+    numberOfSteps = tryForInt(4) * measures
     return numberOfSteps
 
 def noteValue(instr_name):
@@ -80,42 +101,30 @@ def rythmGenerator(steps):
     return beat
 
 # check wat gewenst wordt en vergelijk met de beats die gegenereerd zijn, output final beat
-def rythmCheck():
+def rythmCheck(totalRythms):
 
-    # totalBeats is a list that looks like: ["kick", ['1','0','1','0'], "snare", ['0','0','1','0']]
-    # Here we look for the "kick" or "snare" part and start selecting the rythms that are correct according to the user input after
-    for i in totalBeats:
-        if isinstance(i[0], str):
-            name = i[0]
-            print("How will we organise the ", name, "? Remember, you have ", steps, " steps each measure")
-            print("eg for 4 steps: 101~ (~ is random)")
-            wish = input("Put your requirements here: ")
-            wish_list = list(wish)
-            finalBeats.append(name)
+    wish = input("Put your wish here, eg(4 steps -> 101~) :  ")
+    wish_list = list(wish)
+    checkedRythms = []
 
-            # In order to check the user wish with the generated beat, we will reconstruct every beat generated.
-            # For example, if the wish is ~~10 and the original generated beat was ['1','0','0','0']
-            # The reconstruction will look like ['~','~','0','0']. This new list will be compared with the wish
-            # If they are the same, the not formarly generated beat will be added to the final beat.
-            # Because the fist in i is the name of the instrument we want to start looking for each generated rythm from i[1] and further so:
-            for beat in i[1:]:
-                contender = beat.copy()
-                # print(contender)
-                for i in range(len(beat)):
-                    if wish_list[i] == "~":
-                        beat[i] = "~"
+    # totalRythms is a list that looks like: [['1','0','1','0'], ['0','0','1','0']]
+    # Here we start checking each rythm's correctness to the wish
+    for beat in totalRythms:        
+        # In order to check the user wish with the generated beat, we will reconstruct every beat generated.
+        # For example, if the wish is ~~10 and the original generated beat was ['1','0','0','0']
+        # The reconstruction will look like ['~','~','0','0']. This new list will be compared with the wish
+        # If they are the same, the not formarly generated beat will be added to the final beat.
+        # Because the fist in i is the name of the instrument we want to start looking for each generated rythm from i[1] and further so:
+        contender = beat.copy()
 
-                if beat == wish_list:
-                    # print("we hebben een winner", contender)
-                    finalBeats.append(contender)
+        for i in range(len(beat)):
+            if wish_list[i] == "~":
+                beat[i] = "~"
 
-                # else:
-                    # print("womp womp")
-            print(finalBeats)
-
-            for i in range(len(finalBeats)):
-                print(finalBeats[i])
-    return
+        if beat == wish_list:
+            checkedRythms.append(contender)
+    
+    return (checkedRythms)
 
 def tryForInt(default):
     correctInput = False
@@ -154,35 +163,53 @@ def tryForInstrumentName():
 
 
 soundAmount = range(amountOfSounds())
-steps = amountOfSteps()
 generations = range(amountOfGens())
 
 for i in soundAmount:
-    beat = [defineInstrument()]
+    Sound = defineInstrument()
+    Measures = amountOfMeasures()
+    Steps = amountOfSteps(Measures)
+    Note = Measures / Steps
+    Rythms = []
     for i in generations:
-        beat.append(rythmGenerator(steps))
-    totalBeats.append(beat)
+        Rythms.append(rythmGenerator(Steps))
+
+    event = {
+        "Sound": Sound,
+        "Measures": Measures,
+        "Steps": Steps,
+        "Note": Note,
+        "Rythms": Rythms
+    }
+    print(event)
+    print("Thats a bit too random for us! You get to make a wish!")
+    print("Tell me, where is a sound REQUIRED (1), where is a sound RANDOM (~) and where will we definitly NOT play anything (0)")
+    print("REMEMBER, you are defining ", Measures, " in ", Steps/Measures, " steps")
+    print("This means you'll have to define ", Steps, "!!!!")
+    event["Rythms"] = rythmCheck(Rythms)
+    listOfSounds.append(event)
+print(listOfSounds)
 
 # print(totalBeats)
 # print(len(totalBeats))
 
-rythmCheck()
+#rythmCheck()
 
 ############################
 
-for i, event in enumerate(finalBeats):
-
-    if isinstance(event, str):
-        instr_name = event
-        note_value = noteValue(instr_name)
-        note_time = 60 / bpm * 2 * note_value
-        print(instr_name, " is added to the sequence")
-        timeStamp = 0
-    else:
-        for ind in event:
-            if ind == "1":
-                mf.addNote(track, channel, instr_midi_pitch[instr_name], timeStamp, note_value, velocity)
-            timeStamp = timeStamp + note_time
+for event in listOfSounds:
+    timeStamp = 0
+    note_time = one_note * event["Steps"]/4 * event["Measures"]
+    start_offset = 0
+    maximumReached = False
+    for rythm in event["Rythms"]:
+        while not maximumReached:
+            for step in rythm:
+                if step == "1":
+                    mf.addNote(track, channel, instr_midi_pitch[event["Sound"]], timeStamp, note_time, velocity)
+                timeStamp = timeStamp + note_time + start_offset
+                if timeStamp > 1000:
+                    maximumReached = True
 
 with open("events_lists.midi",'wb') as outf:
     mf.writeFile(outf)
