@@ -27,6 +27,7 @@ mf.addTempo(track, time_beginning, bpm)
 instr_midi_pitch = {
     "kick": 35,
     "snare": 38
+    hihat
 }
 
 
@@ -36,7 +37,6 @@ for i, event in enumerate(finalBeat):
         instr_name = event
         print(instr_name)
         timeStamp = 0
-        loopIndex = i
     else:
         for ind in event:
             if ind == 1:
