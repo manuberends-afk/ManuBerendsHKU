@@ -70,7 +70,7 @@ def amountOfSounds():
 # Define how many times we will randomly generate the beat and return it to user
 def amountOfGens():
 
-    print("How many times will we generate each rythm? press \"ENTER\" for default -> 1000: ")
+    print("How many times will we generate each random rythm? press \"ENTER\" for default -> 1000: ")
 
     # Check correctness of input
     beatGens = tryForInt(1000, 10, 10000000, 1)
@@ -216,12 +216,31 @@ def maxTime():
     maxtime = tryForInt(60, 10, 600, 1)
     return maxtime
 
+def exportMIDI():
+    correctInput = False
+
+    print("Would you like to save the MIDI file? -->")
+    
+
+    while not correctInput:
+        yesno = input("y/n --> ")
+        if yesno == "y":
+            midiOut = True
+            correctInput = True
+        elif yesno =="n":
+            midiOut = False
+            correctInput = True
+        else:
+            print("type y or n")
+
+    return midiOut
         
 
 bpm = BPM()
 userTimeSignature = timeSignature(userTimeSignature)
 soundAmount = range(amountOfSounds())
 generations = range(amountOfGens())
+exportMidi = exportMIDI()
 
 # Every sound will be generated with this for loop, and added to the listOfSounds
 for i in soundAmount:
@@ -229,10 +248,6 @@ for i in soundAmount:
     Sound = defineInstrument()
     Measures = 1
     Steps = amountOfSteps(userTimeSignature)
-
-    # Define first step amount as time signature
-    if timeSignature == 1:
-        timeSignature = Steps
 
     # This is how many steps the user will define
     totalSteps = Steps * Measures
@@ -270,22 +285,22 @@ for i in soundAmount:
 ############################
 
 # MIDI GENERATION
+if exportMidi:
+    for event in listOfSounds:
+        timeStamp = 0.0
+        noteTime = event["Note"] * 2.0
+        # print("Time of ", event["Sound"], " note ", noteTime)
+        start_offset = 0
 
-for event in listOfSounds:
-    timeStamp = 0.0
-    noteTime = event["Note"] * 2.0
-    print("Time of ", event["Sound"], " note ", noteTime)
-    start_offset = 0
-
-    for rythm in event["Rythms"]:
-        for step in rythm:
-            if step == "1":
-                mf.addNote(track, channel, instrMidiPitch[event["Sound"]], timeStamp, noteValue, velocity)
-            timeStamp = timeStamp + noteTime
+        for rythm in event["Rythms"]:
+            for step in rythm:
+                if step == "1":
+                    mf.addNote(track, channel, instrMidiPitch[event["Sound"]], timeStamp, noteValue, velocity)
+                timeStamp = timeStamp + noteTime
 
 
-with open("events_lists.midi",'wb') as outf:
-    mf.writeFile(outf)
+    with open("events_lists.midi",'wb') as outf:
+        mf.writeFile(outf)
 
 
 
@@ -294,7 +309,7 @@ with open("events_lists.midi",'wb') as outf:
 
 
 
-# Get smalles note value, important for playback.
+# Get smallest note value, important for playback.
 smallest = smallestNoteTime()
 print("the smallest notetime is: ", smallest)
 
@@ -330,14 +345,14 @@ while timeStamp < programTime:
                     sample = pygame.mixer.Sound(sound)
                     sample.play()
 
-# This doesnt work and i dont know why, or do i have time to fix it
-        if event["Note"] == smallest * 3 and counter % 3 == 0:
-            # halfStep = event["Steps"]
-            for i, rythms in enumerate(event["Rythms"]):
-                if i == thirdMeasure and rythms[thirdStepCounter] == "1":
-                    sound = fileLocation + event["Sound"] + fileType
-                    sample = pygame.mixer.Sound(sound)
-                    sample.play()
+# # This doesnt work and i dont know why, or do i have time to fix it
+#         if event["Note"] == smallest * 3 and counter % 3 == 0:
+#             # halfStep = event["Steps"]
+#             for i, rythms in enumerate(event["Rythms"]):
+#                 if i == thirdMeasure and rythms[thirdStepCounter] == "1":
+#                     sound = fileLocation + event["Sound"] + fileType
+#                     sample = pygame.mixer.Sound(sound)
+#                     sample.play()
 
         if event["Note"] == smallest * 4 and counter % 4 == 0:
             # halfStep = event["Steps"]
@@ -386,13 +401,4 @@ while timeStamp < programTime:
     timeStamp = timeStamp + smallest
     print("Time: ", timeStamp, " of total ", programTime)
     time.sleep(smallest)
-
-                
-
-
-
-
-########### Finishing work: make it play
-        #   Add more comments
-        #   Add looping stuff
         
