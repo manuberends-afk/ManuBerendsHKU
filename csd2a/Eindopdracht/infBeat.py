@@ -124,13 +124,25 @@ def rythmCheck(totalRythms, totalSteps):
 
     correctInput = False
 
-    while not correctInput:
+    while (not correctInput):
 
         wish = input("Put your wish here, eg(4 steps -> 101~) :  ")
         wishList = list(wish)
+        correctCharacters = True
 
+        # Check if input is correct (with final adjustments)
         if len(wishList) == totalSteps:
-            correctInput = True
+            for userInput in wishList:
+                if correctCharacters == True:
+                    if userInput == "1" or userInput == "0" or userInput == "~":
+                        correctCharacters = True
+                    else:
+                        correctCharacters = False
+                
+            if correctCharacters == True:
+                correctInput = True
+            else:
+                print("One or multiple characters of your input do not match with 1 0 or ~")
         else:
             print("Input doesn't match the amount of steps you should define")
 
@@ -244,8 +256,9 @@ exportMidi = exportMIDI()
 
 # Every sound will be generated with this for loop, and added to the listOfSounds
 for i in soundAmount:
+
     # Definitions for event that will be added to listOfSounds
-    Sound = defineInstrument()
+    Sound = defineInstrument()  
     Measures = 1
     Steps = amountOfSteps(userTimeSignature)
 
