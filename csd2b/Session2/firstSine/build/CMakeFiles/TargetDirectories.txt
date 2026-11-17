@@ -1,0 +1,3 @@
+/Users/manu/Desktop/HKU/MT2/CSD/csd2b/Session2/firstSine/build/CMakeFiles/firstSine.dir
+/Users/manu/Desktop/HKU/MT2/CSD/csd2b/Session2/firstSine/build/CMakeFiles/edit_cache.dir
+/Users/manu/Desktop/HKU/MT2/CSD/csd2b/Session2/firstSine/build/CMakeFiles/rebuild_cache.dir

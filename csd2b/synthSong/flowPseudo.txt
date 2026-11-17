@@ -1,0 +1,16 @@
+// Pseudo code, ik snap nog niet helemaal hoe ik dit beter zou kunnen doen.
+// VCO -> VCF -> VCA -> Output
+// ADSR -> VCA 
+// Env -> VCF
+// LFO || map -> destination
+// (Ik weet dat het allemaal niet voltage controlled .. is...)
+
+if (lfoMapped){
+    lfoDestination = lfo.mapDestination();
+    lfoDestination = lfoDestination.getValue() + lfo.getValue();
+}
+
+oscillatorSample = VCO.getSample();
+filteredSample = oscillatorSample * VCF.getMask(env.getSample());
+amplitude = ADSR.getSample();
+output = filteredSample * amplitude;
